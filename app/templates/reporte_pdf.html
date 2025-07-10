@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
+        h1, h2 { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>📄 Reporte de Análisis</h1>
+    <h2>Archivo: {{ archivo.nombre }}</h2>
+
+    <p><strong>Columna numérica:</strong> {{ columna_num }}</p>
+    <p><strong>Columna categórica:</strong> {{ columna_cat }}</p>
+
+    <h3>📊 Estadísticas</h3>
+    {{ estadisticas.to_html|safe }}
+
+    <h3>📋 Agrupado por categoría</h3>
+    {{ agrupado.to_html|safe }}
+
+    <h3>👁️ Vista previa de datos</h3>
+    {{ vista_previa.to_html|safe }}
+</body>
+</html>

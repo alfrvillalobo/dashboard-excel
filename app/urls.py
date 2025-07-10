@@ -9,5 +9,7 @@ urlpatterns = [
     path('subir/', views.subir_archivo, name='subir_archivo'),
     path('archivos/', views.lista_archivos, name='lista_archivos'),
     path('analizar/<int:archivo_id>/', views.analizar_archivo, name='analizar_archivo'),
+    path('exportar/<int:archivo_id>/', views.exportar_excel, name='exportar_excel'),
+    path('exportar-pdf/<int:archivo_id>/', views.exportar_pdf, name='exportar_pdf'),
 
 ]

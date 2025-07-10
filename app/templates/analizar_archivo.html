@@ -1,45 +1,39 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Análisis del archivo: {{ archivo.archivo.name }}</h2>
-
-<p><strong>Filas:</strong> {{ resumen.filas }}</p>
-<p><strong>Columnas:</strong> {{ resumen.columnas }}</p>
-<p><strong>Columnas detectadas:</strong> {{ resumen.columnas_nombres|join:", " }}</p>
-
-<h3>Vista previa</h3>
-{{ resumen.primeros_datos|safe }}
-
-<hr>
-
-<h3>Configurar análisis</h3>
-<form method="post">
-  {% csrf_token %}
-  <div class="row">
-    <div class="col-md-6">
-      {{ form.columna_categorica.label_tag }} {{ form.columna_categorica }}
+{% if form %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Analizar</button>
     </div>
-    <div class="col-md-6">
-      {{ form.columna_numerica.label_tag }} {{ form.columna_numerica }}
-    </div>
-  </div>
-  <button type="submit" class="btn btn-primary mt-3">Analizar</button>
-</form>
+  </form>
+{% endif %}
 
 {% if estadisticas_html %}
-  <hr>
-  <h3>Estadísticas básicas</h3>
-  {{ estadisticas_html|safe }}
+  <h4>📊 Estadísticas básicas</h4>
+  <div>{{ estadisticas_html|safe }}</div>
 {% endif %}
 
 {% if agrupado_html %}
-  <h3>Totales por categoría</h3>
-  {{ agrupado_html|safe }}
+  <h4>📋 Datos agrupados</h4>
+  <div>{{ agrupado_html|safe }}</div>
 {% endif %}
 
 {% if grafico_html %}
-  <h3>Gráfico</h3>
-  {{ grafico_html|safe }}
+  <h4>📈 Gráfico</h4>
+  <div>{{ grafico_html|safe }}</div>
 {% endif %}
 
-<a href="{% url 'lista_archivos' %}" class="btn btn-secondary mt-4">Volver a mis archivos</a>
-{% endblock %}
+<!-- ✅ Botón para descargar Excel -->
+<a href="{% url 'exportar_excel' archivo.id %}" class="btn btn-success mt-3">
+  Descargar análisis en Excel
+</a>
+
+<a href="{% url 'exportar_pdf' archivo.id %}" class="btn btn-danger mt-3 ms-2">
+  Descargar análisis en PDF
+</a>
+
+
+<!-- Botón volver (opcional) -->
+<a href="{% url 'lista_archivos' %}" class="btn btn-secondary mt-3 ms-2">
+  Volver
+</a>

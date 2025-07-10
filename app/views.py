@@ -9,6 +9,10 @@ import pandas as pd
 import plotly.express as px
 import os
 from .forms import AnalisisForm
+from django.http import HttpResponse
+from io import BytesIO
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 
 def home(request):
     return render(request, 'home.html')
@@ -107,3 +111,80 @@ def analizar_archivo(request, archivo_id):
         'agrupado_html': agrupado_html,
         'grafico_html': grafico_html,
     })
+
+def exportar_excel(request, archivo_id):
+    archivo = get_object_or_404(ArchivoExcel, id=archivo_id, usuario=request.user)
+    ruta_archivo = archivo.archivo.path
+    df = pd.read_excel(ruta_archivo)
+
+    # Obtenemos columnas categóricas y numéricas
+    columnas_num = list(df.select_dtypes(include='number').columns)
+    columnas_cat = list(df.select_dtypes(include='object').columns)
+
+    if len(columnas_num) == 0 or len(columnas_cat) == 0:
+        return HttpResponse("No hay columnas numéricas o categóricas para exportar.")
+
+    # Usamos por defecto la primera de cada tipo
+    col_num = columnas_num[0]
+    col_cat = columnas_cat[0]
+
+    # Generamos estadísticas y agrupado
+    estadisticas = df[[col_num]].agg(['sum', 'mean', 'max', 'min']).transpose()
+    agrupado = df.groupby(col_cat)[col_num].sum().reset_index()
+
+    # Creamos un archivo Excel en memoria
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        estadisticas.to_excel(writer, sheet_name='Estadísticas')
+        agrupado.to_excel(writer, sheet_name='Agrupado', index=False)
+        df.head(10).to_excel(writer, sheet_name='Vista previa', index=False)
+
+    output.seek(0)
+    filename = f"analisis_{archivo.id}.xlsx"
+
+    # Respondemos con el archivo para descargar
+    response = HttpResponse(
+        output,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+def exportar_pdf(request, archivo_id):
+    archivo = get_object_or_404(ArchivoExcel, id=archivo_id, usuario=request.user)
+    ruta_archivo = archivo.archivo.path
+    df = pd.read_excel(ruta_archivo)
+
+    columnas_num = list(df.select_dtypes(include='number').columns)
+    columnas_cat = list(df.select_dtypes(include='object').columns)
+
+    # Columnas seleccionadas por el usuario o por defecto
+    col_num = request.session.get('columna_num', columnas_num[0])
+    col_cat = request.session.get('columna_cat', columnas_cat[0])
+
+    if col_num not in df.columns or col_cat not in df.columns:
+        return HttpResponse("Columnas seleccionadas no válidas para exportar.")
+
+    estadisticas = df[[col_num]].agg(['sum', 'mean', 'max', 'min']).transpose()
+    agrupado = df.groupby(col_cat)[col_num].sum().reset_index()
+    vista_previa = df.head(10)
+
+    # Usamos una plantilla HTML como base
+    template = get_template('reporte_pdf.html')
+    html = template.render({
+        'archivo': archivo,
+        'columna_num': col_num,
+        'columna_cat': col_cat,
+        'estadisticas': estadisticas,
+        'agrupado': agrupado,
+        'vista_previa': vista_previa,
+    })
+
+    # Creamos el PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="reporte_{archivo.id}.pdf"'
+    pisa_status = pisa.CreatePDF(html, dest=response)
+
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF')
+    return response
