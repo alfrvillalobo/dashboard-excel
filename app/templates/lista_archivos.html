@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Mis Archivos Excel</h2>
+<ul>
+  {% for archivo in archivos %}
+    <li>
+      <a href="{% url 'analizar_archivo' archivo.id %}">
+  {{ archivo.archivo.name }}
+</a> - {{ archivo.fecha_subida|date:"d/m/Y H:i" }}
+
+    </li>
+  {% empty %}
+    <li>No has subido archivos aún.</li>
+  {% endfor %}
+</ul>
+<a href="{% url 'subir_archivo' %}" class="btn btn-success">Subir nuevo archivo</a>
+{% endblock %}
