@@ -1,17 +1,36 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Mis Archivos Excel</h2>
-<ul>
-  {% for archivo in archivos %}
-    <li>
-      <a href="{% url 'analizar_archivo' archivo.id %}">
-  {{ archivo.archivo.name }}
-</a> - {{ archivo.fecha_subida|date:"d/m/Y H:i" }}
+{% extends 'base.html' %}
 
-    </li>
-  {% empty %}
-    <li>No has subido archivos aún.</li>
-  {% endfor %}
-</ul>
-<a href="{% url 'subir_archivo' %}" class="btn btn-success">Subir nuevo archivo</a>
+{% block title %}Mis archivos{% endblock %}
+
+{% block content %}
+<h2>Mis archivos</h2>
+
+<a href="{% url 'subir_archivo' %}" class="btn btn-primary mb-3">Subir nuevo archivo</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Fecha de subida</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for archivo in archivos %}
+        <tr>
+            <td>{{ archivo.nombre }}</td>
+            <td>{{ archivo.fecha_subida|date:"d-m-Y H:i" }}</td>
+            <td>
+                <a href="{% url 'analizar_archivo' archivo.id %}" class="btn btn-sm btn-info">Analizar</a>
+                <a href="{% url 'exportar_excel' archivo.id %}" class="btn btn-sm btn-success">Excel</a>
+                <a href="{% url 'exportar_pdf' archivo.id %}" class="btn btn-sm btn-danger">PDF</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No tienes archivos subidos.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

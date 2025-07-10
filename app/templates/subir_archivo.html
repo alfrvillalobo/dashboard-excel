@@ -1,9 +1,13 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}Subir archivo{% endblock %}
+
 {% block content %}
-<h2>Subir Archivo Excel</h2>
+<h2>Subir archivo Excel</h2>
+
 <form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Subir</button>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Subir</button>
 </form>
 {% endblock %}

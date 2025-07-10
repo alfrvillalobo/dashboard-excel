@@ -1,39 +1,33 @@
-{% if form %}
-  <form method="post">
+{% extends 'base.html' %}
+
+{% block title %}Análisis de archivo{% endblock %}
+
+{% block content %}
+<h2>Análisis del archivo: {{ archivo.nombre }}</h2>
+
+<form method="post" class="mb-4">
     {% csrf_token %}
-    <div class="mb-3">
-      {{ form.as_p }}
-      <button type="submit" class="btn btn-primary">Analizar</button>
-    </div>
-  </form>
-{% endif %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Analizar</button>
+</form>
 
 {% if estadisticas_html %}
-  <h4>📊 Estadísticas básicas</h4>
-  <div>{{ estadisticas_html|safe }}</div>
+    <h4>📊 Estadísticas</h4>
+    <div class="table-responsive">{{ estadisticas_html|safe }}</div>
 {% endif %}
 
 {% if agrupado_html %}
-  <h4>📋 Datos agrupados</h4>
-  <div>{{ agrupado_html|safe }}</div>
+    <h4>📋 Agrupado</h4>
+    <div class="table-responsive">{{ agrupado_html|safe }}</div>
 {% endif %}
 
 {% if grafico_html %}
-  <h4>📈 Gráfico</h4>
-  <div>{{ grafico_html|safe }}</div>
+    <h4>📈 Gráfico</h4>
+    <div>{{ grafico_html|safe }}</div>
 {% endif %}
 
-<!-- ✅ Botón para descargar Excel -->
-<a href="{% url 'exportar_excel' archivo.id %}" class="btn btn-success mt-3">
-  Descargar análisis en Excel
-</a>
-
-<a href="{% url 'exportar_pdf' archivo.id %}" class="btn btn-danger mt-3 ms-2">
-  Descargar análisis en PDF
-</a>
-
-
-<!-- Botón volver (opcional) -->
-<a href="{% url 'lista_archivos' %}" class="btn btn-secondary mt-3 ms-2">
-  Volver
-</a>
+<div class="mt-4">
+    <a href="{% url 'exportar_excel' archivo.id %}" class="btn btn-success me-2">Descargar Excel</a>
+    <a href="{% url 'exportar_pdf' archivo.id %}" class="btn btn-danger">Descargar PDF</a>
+</div>
+{% endblock %}
