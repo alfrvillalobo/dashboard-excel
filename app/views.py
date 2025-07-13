@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from io import BytesIO
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+from django.contrib import messages
 
 def home(request):
     return render(request, 'home.html')
@@ -48,10 +49,13 @@ def subir_archivo(request):
     if request.method == 'POST':
         form = ArchivoExcelForm(request.POST, request.FILES)
         if form.is_valid():
-            nuevo_archivo = form.save(commit=False)
-            nuevo_archivo.usuario = request.user
-            nuevo_archivo.save()
+            archivo = form.save(commit=False)
+            archivo.usuario = request.user
+            archivo.save()
+            messages.success(request, "📂 Archivo subido correctamente.")
             return redirect('lista_archivos')
+        else:
+            messages.error(request, "❌ Hubo un error al subir el archivo.")
     else:
         form = ArchivoExcelForm()
     return render(request, 'subir_archivo.html', {'form': form})
@@ -188,3 +192,14 @@ def exportar_pdf(request, archivo_id):
     if pisa_status.err:
         return HttpResponse('Error al generar el PDF')
     return response
+
+def eliminar_archivo(request, archivo_id):
+    archivo = get_object_or_404(ArchivoExcel, id=archivo_id, usuario=request.user)
+
+    if request.method == 'POST':
+        archivo.delete()
+        messages.success(request, "🗑️ Archivo eliminado correctamente.")
+        return redirect('lista_archivos')
+
+    messages.warning(request, "⚠️ Debes confirmar la eliminación del archivo.")
+    return redirect('lista_archivos')

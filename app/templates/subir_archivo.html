@@ -1,13 +1,21 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 
 {% block title %}Subir archivo{% endblock %}
 
 {% block content %}
-<h2>Subir archivo Excel</h2>
+<h2 class="mb-4">Subir archivo Excel</h2>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Subir</button>
+<form method="post" enctype="multipart/form-data" class="mb-4">
+  {% csrf_token %}
+
+  <div class="mb-3">
+    <label for="id_archivo" class="form-label">Selecciona un archivo</label>
+    {{ form.archivo|add_class:"form-control" }}
+  </div>
+
+  <button type="submit" class="btn btn-primary">
+    <i class="bi bi-upload"></i> Subir
+  </button>
 </form>
 {% endblock %}

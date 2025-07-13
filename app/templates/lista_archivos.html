@@ -3,34 +3,52 @@
 {% block title %}Mis archivos{% endblock %}
 
 {% block content %}
-<h2>Mis archivos</h2>
+<h2 class="mb-4">Mis archivos</h2>
 
-<a href="{% url 'subir_archivo' %}" class="btn btn-primary mb-3">Subir nuevo archivo</a>
+<a href="{% url 'subir_archivo' %}" class="btn btn-primary mb-3">
+  <i class="bi bi-upload"></i> Subir nuevo archivo
+</a>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Fecha de subida</th>
-            <th>Acciones</th>
-        </tr>
+<div class="table-responsive">
+  <table class="table table-striped table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Nombre</th>
+        <th>Fecha de subida</th>
+        <th>Acciones</th>
+      </tr>
     </thead>
     <tbody>
-        {% for archivo in archivos %}
-        <tr>
-            <td>{{ archivo.nombre }}</td>
-            <td>{{ archivo.fecha_subida|date:"d-m-Y H:i" }}</td>
-            <td>
-                <a href="{% url 'analizar_archivo' archivo.id %}" class="btn btn-sm btn-info">Analizar</a>
-                <a href="{% url 'exportar_excel' archivo.id %}" class="btn btn-sm btn-success">Excel</a>
-                <a href="{% url 'exportar_pdf' archivo.id %}" class="btn btn-sm btn-danger">PDF</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="3">No tienes archivos subidos.</td>
-        </tr>
-        {% endfor %}
+      {% for archivo in archivos %}
+      <tr>
+        <td>{{ archivo.nombre }}</td>
+        <td>{{ archivo.fecha_subida|date:"d-m-Y H:i" }}</td>
+        <td>
+  <a href="{% url 'analizar_archivo' archivo.id %}" class="btn btn-sm btn-primary me-1">
+    <i class="bi bi-eye"></i> Ver
+  </a>
+  <a href="{% url 'exportar_excel' archivo.id %}" class="btn btn-sm btn-success me-1">
+    <i class="bi bi-download"></i> Excel
+  </a>
+  <a href="{% url 'exportar_pdf' archivo.id %}" class="btn btn-sm btn-danger me-1">
+    <i class="bi bi-file-earmark-pdf"></i> PDF
+  </a>
+  <form action="{% url 'eliminar_archivo' archivo.id %}" method="post" style="display:inline;">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-sm btn-outline-secondary" onclick="return confirm('¿Estás seguro de que deseas eliminar este archivo? Esta acción no se puede deshacer.');">
+    <i class="bi bi-trash"></i> Borrar
+  </button>
+</form>
+
+</td>
+
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">No tienes archivos subidos.</td>
+      </tr>
+      {% endfor %}
     </tbody>
-</table>
+  </table>
+</div>
 {% endblock %}
